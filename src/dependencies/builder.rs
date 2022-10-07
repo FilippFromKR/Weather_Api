@@ -1,10 +1,6 @@
 use
 {
-    api::weather::main::
-    {
-        DependencyHandler,
-        DepHolder
-    },
+
     std::
     {
         any::
@@ -12,7 +8,6 @@ use
             Any, TypeId,
         },
         borrow::Borrow,
-        borrow::BorrowMut,
         collections::HashMap,
         sync::
         {
@@ -23,6 +18,11 @@ use
 
 use crate::
 {
+    weather::main::
+    {
+        DependencyHandler,
+        DepHolder
+    },
     error::weather_error::
     {
         ErrorTy, WeatherErr
@@ -54,7 +54,6 @@ impl DependencyBuilder
 
 impl DependencyHandler for DependencyBuilder
 {
-    type Error = WeatherErr;
 
     /// Add dependency to hash_map with key TypeID, so may keep only unique structs.
     fn add_dependency<T>(&mut self, dependency: T) -> WeatherResult<()>
@@ -79,21 +78,27 @@ impl DependencyHandler for DependencyBuilder
     {
         let borrowed: &Mutex<HashMap<TypeId, Arc<Box<dyn Any + 'static>>>> = self.deps.borrow();
         let ty_id = self.ty_id::<T>();
-        let result = Arc::clone(borrowed.lock()?.get(&ty_id).unwrap());
+        if let Some(result) = borrowed.lock()?.get(&ty_id)
+        {
+            let result = Arc::clone(result);
 
-        // SAFETY: We know that we store T type, so it's save to get T.
-        let as_t: Arc<Box<T>> = unsafe
-            {
-                std::mem::transmute::<Arc<Box<dyn Any>>, Arc<Box<T>>>(result)
-            };
+            // SAFETY: We take 'result' by TypeId of T, therefore, we know that it save to cast to T.
+            let as_t: Arc<Box<T>> = unsafe
+                {
+                    std::mem::transmute::<Arc<Box<dyn Any>>, Arc<Box<T>>>(result)
+                };
 
-        Ok
-            (
-                Some
-                    (
-                        DepHolder::new(as_t)
-                    )
-            )
+         return  Ok
+                (
+                    Some
+                        (
+                            DepHolder::new(as_t)
+                        )
+                )
+        }
+        Ok(
+            None
+        )
     }
 }
 
@@ -103,7 +108,7 @@ mod dependency_handler_check
 {
     use std::sync::{Arc, Mutex};
 
-    use api::weather::main::DependencyHandler;
+    use crate::weather::main::DependencyHandler;
 
     use crate::dependencies::builder::DependencyBuilder;
 

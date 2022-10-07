@@ -9,12 +9,12 @@ use crate::
     utils::types::WeatherResult
 };
 
-pub struct Storage
+pub struct Db
 {
     connection: Connection,
 }
 
-impl Storage {
+impl Db {
     pub fn build(path: &str) -> WeatherResult<Self>
     {
         let connection = sqlite::open(path)
@@ -26,5 +26,9 @@ impl Storage {
                     connection
                 }
             )
+    }
+    pub fn connection(&self) -> &Connection
+    {
+        &self.connection
     }
 }

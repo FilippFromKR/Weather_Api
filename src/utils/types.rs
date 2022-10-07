@@ -1,13 +1,67 @@
-use crate::error::weather_error::WeatherErr;
+use
+{
+    std::
+    {
+        fmt::
+        {
+            Display, Formatter,
+        },
+        ops::Deref,
+        collections::HashMap,
+    }
+};
 
-pub type WeatherResult< T > = Result< T, WeatherErr>;
+use crate::
+{
+    error::weather_error::
+    {
+        ErrorTy, WeatherErr,
+    },
+    service::providers::
+    {
+        Provide, Providers
+    }
+};
+
+pub type WeatherResult<T> = Result<T, WeatherErr>;
 
 pub struct RequestParams
 {
-    address: String,
-    data: String,
+    pub city: String,
+    pub country_code: String,
+    pub data: ForecastType,
 
 }
 
+pub enum ForecastType
+{
+    Daily(u8),
+    Now,
+}
 
-pub struct UserConfig;
+
+#[derive(Debug)]
+pub struct UserConfig(pub Providers);
+
+
+impl Deref for UserConfig
+{
+    type Target = Providers;
+
+    fn deref(&self) -> &Self::Target
+    {
+        &self.0
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

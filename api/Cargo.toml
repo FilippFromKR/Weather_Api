@@ -1,9 +1,0 @@
-[package]
-name = "api"
-version = "0.1.0"
-edition = "2021"
-
-
-[dependencies]
-async-trait = "0.1.57"
-serde = "1.0.2"

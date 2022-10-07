@@ -1,4 +1,5 @@
-use crate::utils::types::WeatherResult;
+use crate::service::providers::Provide;
+use crate::utils::types::{RequestParams, WeatherResult};
 
 pub mod db;
 pub mod repository;
@@ -6,8 +7,8 @@ pub mod sql_storage;
 
 pub trait Storage
 {
-    fn save<P>(&self, params: Option<P>) -> WeatherResult<()>;
-    fn update<P>(&self, params: Option<P>) -> WeatherResult<()>;
-    fn delete<P>(&self, params: Option<P>) -> WeatherResult<()>;
-    fn get<P, R>(&self, params: Option<P>) -> WeatherResult<R>;
+    type Params: Send + Sync ;
+    fn save(&self, params: Self::Params) -> WeatherResult<()>;
+    fn get(&self) -> WeatherResult<Self::Params>;
 }
+

@@ -1,8 +1,15 @@
-use std::borrow::Cow;
-use std::fmt::Display;
-use std::sync::{LockResult, PoisonError};
-
-use sqlite::Error;
+use serde_json::Error;
+use
+{
+    std::
+    {
+        fmt::Display,
+        sync::
+        {
+            PoisonError
+        },
+    }
+};
 
 #[derive(Debug)]
 pub struct WeatherErr
@@ -43,10 +50,26 @@ impl<G> From<PoisonError<G>> for WeatherErr
     }
 }
 
-impl<E> From<sqlite::Error> for WeatherErr
+impl From<sqlite::Error> for WeatherErr
+{
+    fn from(err: sqlite::Error) -> Self
+    {
+        WeatherErr::new(ErrorTy::STORAGE, err)
+    }
+}
+
+impl From<reqwest::Error> for WeatherErr
+{
+    fn from(err: reqwest::Error) -> Self
+    {
+        WeatherErr::new(ErrorTy::SERVICE, err)
+    }
+}
+
+impl From<serde_json::Error> for WeatherErr
 {
     fn from(err: Error) -> Self
     {
-        WeatherErr::new(ErrorTy::STORAGE, err)
+        WeatherErr::new(ErrorTy::PARSE, err)
     }
 }

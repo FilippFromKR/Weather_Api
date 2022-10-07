@@ -1,11 +1,14 @@
 #![feature(downcast_unchecked)]
+extern crate core;
 mod config;
-mod main;
 mod error;
 mod service;
-mod utils;
+pub mod utils;
 mod dependencies;
 mod storage;
+mod weather;
+pub mod input;
+
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right
